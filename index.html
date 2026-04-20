@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spurs · Final Five — Relegation Simulator 2025/26</title>
+<style>
+  :root {
+    --navy: #132257;
+    --navy-deep: #0a1432;
+    --bg: #06091a;
+    --panel: #0f1430;
+    --panel-2: #161c40;
+    --line: rgba(255,255,255,0.07);
+    --line-strong: rgba(255,255,255,0.14);
+    --text: #f4f5fb;
+    --muted: #8a92b2;
+    --muted-2: #5d6483;
+    --accent: #ffffff;
+    --gold: #c4a661;
+    --red: #ff4d6a;
+    --amber: #ffb547;
+    --green: #2ed573;
+    --win: #2ed573;
+    --draw: #ffb547;
+    --loss: #ff4d6a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(19,34,87,0.55), transparent 60%),
+      radial-gradient(900px 500px at -10% 100%, rgba(19,34,87,0.35), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 56px 32px 96px;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 32px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 28px;
+    margin-bottom: 36px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .crest {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 2px var(--navy), 0 0 0 4px rgba(255,255,255,0.15);
+  }
+  .crest svg { width: 22px; height: 22px; }
+  .title-wrap h1 {
+    font-size: 22px; font-weight: 600; letter-spacing: -0.01em;
+  }
+  .title-wrap .sub {
+    color: var(--muted); font-size: 13px; margin-top: 2px; letter-spacing: 0.02em;
+  }
+  .meta {
+    text-align: right; color: var(--muted); font-size: 12px; line-height: 1.6;
+    font-variant-numeric: tabular-nums;
+  }
+  .meta strong { color: var(--text); font-weight: 500; }
+
+  /* HERO */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 32px;
+    margin-bottom: 40px;
+  }
+  .hero h2 {
+    font-size: 56px; font-weight: 700; letter-spacing: -0.03em;
+    line-height: 1.05; margin-bottom: 16px;
+  }
+  .hero h2 .accent {
+    background: linear-gradient(180deg, #fff 0%, #c1c8eb 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero p {
+    color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 480px;
+  }
+  .quick-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 32px;
+    row-gap: 24px;
+    align-self: end;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 22px 0;
+  }
+  .qs {
+    background: transparent;
+    padding: 0;
+  }
+  .qs .lbl {
+    font-size: 10px; color: var(--muted-2);
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .qs .val {
+    font-size: 30px; font-weight: 600;
+    font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+  }
+  .qs .val.danger { color: var(--red); }
+  .qs .val.good { color: var(--green); }
+  .qs .delta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* FIXTURES STRIP — interactive workbench */
+  .workbench {
+    background:
+      radial-gradient(800px 300px at 50% -20%, rgba(196,166,97,0.08), transparent 70%),
+      linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 18px;
+    padding: 22px 22px 24px;
+    margin-bottom: 32px;
+    position: relative;
+  }
+  .workbench::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 24px; right: 24px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(196,166,97,0.5), transparent);
+  }
+  .section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 14px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .section-label .hint {
+    color: var(--muted-2); font-weight: 500; letter-spacing: 0.04em; text-transform: none;
+  }
+  .workbench .section-label > span:first-child {
+    color: var(--text);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .workbench .section-label > span:first-child::before {
+    content: "";
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 12px rgba(196,166,97,0.6);
+  }
+  .fixtures {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+  .workbench-footer {
+    margin-top: 16px;
+    display: flex;
+  }
+  .workbench-footer .primary { flex: 1; }
+  .fx {
+    background: linear-gradient(180deg, #1a2148 0%, #131a3c 100%);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 12px;
+    padding: 14px 16px;
+    position: relative;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+  .fx:hover {
+    border-color: rgba(255,255,255,0.4);
+    box-shadow: 0 6px 22px rgba(0,0,0,0.35), 0 0 0 1px rgba(196,166,97,0.2);
+  }
+  .fx.locked {
+    border-color: rgba(255,255,255,0.5);
+    background: linear-gradient(180deg, #20284f 0%, #161d40 100%);
+  }
+  .fx-num {
+    position: static;
+    font-size: 10px;
+    color: var(--muted-2);
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    align-self: flex-start;
+    margin-top: 2px;
+  }
+  .fx-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .fx-date {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0;
+    font-weight: 600;
+  }
+  .fx-venue {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.06);
+    color: var(--muted);
+    margin-bottom: 0;
+  }
+  .fx-venue.home { color: var(--text); background: rgba(255,255,255,0.12); }
+  .fx-mid { display: flex; flex-direction: column; gap: 3px; }
+  .fx-opp {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 0;
+    line-height: 1.15;
+  }
+  .fx-meta {
+    font-size: 11px;
+    color: var(--muted-2);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 0;
+  }
+  .fx-right { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
+  .fx-prompt { display: none; }
+  .wdl-row {
+    display: grid;
+    grid-template-columns: repeat(3, 56px);
+    gap: 6px;
+    margin-bottom: 0;
+  }
+  .wdl-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 9px 0;
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    color: var(--text);
+    transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+  }
+  .wdl-btn:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.2);
+  }
+  .wdl-btn:active { transform: scale(0.95); }
+  .wdl-btn.active.W { background: var(--win); border-color: var(--win); color: #042315; box-shadow: 0 0 0 1px var(--win), 0 4px 14px rgba(46,213,115,0.3); }
+  .wdl-btn.active.D { background: var(--draw); border-color: var(--draw); color: #2a1c00; box-shadow: 0 0 0 1px var(--draw), 0 4px 14px rgba(255,181,71,0.3); }
+  .wdl-btn.active.L { background: var(--loss); border-color: var(--loss); color: #2a0008; box-shadow: 0 0 0 1px var(--loss), 0 4px 14px rgba(255,77,106,0.3); }
+  .wdl-prob {
+    display: grid;
+    grid-template-columns: repeat(3, 56px);
+    gap: 6px;
+    font-size: 9px;
+    color: var(--muted-2);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+
+  /* MAIN PANELS */
+  .panels {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+    align-items: start;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 26px;
+  }
+  .panel h3 {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 18px;
+  }
+
+  /* PROBABILITY BARS */
+  .prob-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 80px;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .prob-row:last-child { border-bottom: none; }
+  .prob-pos { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .prob-desc {
+    font-size: 10px; color: var(--muted);
+    letter-spacing: 0.05em; text-transform: uppercase; margin-top: 2px;
+  }
+  .prob-bar {
+    background: rgba(255,255,255,0.04);
+    border-radius: 4px; height: 24px; overflow: hidden;
+  }
+  .prob-bar-fill {
+    height: 100%; border-radius: 4px;
+    transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .prob-bar-fill.p20 { background: linear-gradient(90deg, #ff4d6a, #ff0033); }
+  .prob-bar-fill.p19 { background: linear-gradient(90deg, #ff8a3b, #ff4d6a); }
+  .prob-bar-fill.p18 { background: linear-gradient(90deg, #ffb547, #ff8a3b); }
+  .prob-bar-fill.p17 { background: linear-gradient(90deg, #ffe066, #ffb547); }
+  .prob-bar-fill.safe { background: linear-gradient(90deg, #2ed573, #1abc9c); }
+  .prob-pct {
+    font-size: 16px; font-weight: 600;
+    font-variant-numeric: tabular-nums; text-align: right;
+  }
+
+  /* SIM STATUS */
+  .sim-status {
+    margin-top: 22px;
+    padding: 16px 18px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .sim-status .runs { color: var(--text); font-weight: 600; font-size: 16px; }
+  .sim-status .lbl { font-size: 11px; color: var(--muted); margin-top: 2px; letter-spacing: 0.04em; }
+  .sim-status .relg-num { font-weight: 700; font-size: 22px; }
+
+  /* RIGHT PANEL */
+  .scenario-block {
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .pts-projection {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .pts-num {
+    font-size: 48px; font-weight: 700;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .pts-num .unit {
+    font-size: 16px; color: var(--muted); font-weight: 500;
+    margin-left: 6px;
+  }
+  .pts-lbl {
+    font-size: 11px; color: var(--muted);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-top: 8px;
+  }
+  .pts-detail {
+    font-size: 12px; color: var(--muted);
+    margin-top: 10px; line-height: 1.6;
+    font-variant-numeric: tabular-nums;
+  }
+  .pts-detail strong { color: var(--text); font-weight: 600; }
+
+  .preset-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .preset {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 11px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .preset:hover { background: rgba(255,255,255,0.04); border-color: var(--line-strong); }
+  .preset .preset-title { display: block; margin-bottom: 2px; font-weight: 600; }
+  .preset .preset-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.04em; }
+
+  .button-row {
+    display: flex; gap: 10px; margin-top: 6px;
+  }
+  button.primary {
+    flex: 1;
+    background: var(--accent);
+    color: var(--navy-deep);
+    border: none;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s;
+  }
+  button.primary:hover { transform: translateY(-1px); }
+  button.primary:disabled {
+    background: rgba(255,255,255,0.06);
+    color: var(--muted-2);
+    cursor: not-allowed;
+    transform: none;
+  }
+  button.primary:disabled:hover { transform: none; }
+  button.ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--line);
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  button.ghost:hover { background: rgba(255,255,255,0.04); }
+
+  /* RIVALS PANEL */
+  .rivals {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .rival {
+    background: var(--panel);
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 24px 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+    font-size: 13px;
+  }
+  .rival.spurs { background: rgba(255,255,255,0.04); }
+  .rival .rpos {
+    font-size: 11px; font-weight: 700;
+    color: var(--muted); text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .rival .rname { font-weight: 500; }
+  .rival.spurs .rname { font-weight: 700; }
+  .rival .rpts {
+    font-size: 13px; font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+  .rival .rproj {
+    font-size: 13px; font-variant-numeric: tabular-nums;
+    color: var(--text); font-weight: 600;
+    min-width: 60px; text-align: right;
+  }
+  .rival .ppg-bar {
+    background: rgba(255,255,255,0.06);
+    height: 4px;
+    border-radius: 2px;
+    grid-column: 2 / -1;
+    margin-top: 4px;
+    overflow: hidden;
+  }
+
+  .footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 1100px) {
+    .fixtures { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .panels { grid-template-columns: 1fr; }
+    .hero h2 { font-size: 40px; }
+    .fixtures { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="crest">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="9" r="3.5" stroke="#132257" stroke-width="1.6"/>
+          <path d="M12 12.5L8 18.5h8L12 12.5z" stroke="#132257" stroke-width="1.6" stroke-linejoin="round" fill="#132257"/>
+        </svg>
+      </div>
+      <div class="title-wrap">
+        <h1>SPURS · THE FINAL FIVE</h1>
+        <div class="sub">2025/26 Relegation Simulator</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div><strong>Matchweek 33</strong> · 5 games to go</div>
+      <div>Updated April 19, 2026</div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h2>Five matches stand between<br/><span class="accent">Spurs</span> and the drop.</h2>
+      <p>Tottenham sit 18th on 31 points. Below: their actual run-in. Pick outcomes for any fixture and watch the relegation maths recalculate in real time, or run 10,000 Monte Carlo simulations using each opponent's form and home advantage.</p>
+    </div>
+    <div class="quick-stats">
+      <div class="qs">
+        <div class="lbl">Current Pos</div>
+        <div class="val danger">18<span style="font-size:14px; color:var(--muted);">th</span></div>
+        <div class="delta">In the relegation zone</div>
+      </div>
+      <div class="qs">
+        <div class="lbl">Current Pts</div>
+        <div class="val">31</div>
+        <div class="delta">PPG 0.94 over 33 games</div>
+      </div>
+      <div class="qs">
+        <div class="lbl">Projected Pts</div>
+        <div class="val" id="projectedPts">—</div>
+        <div class="delta" id="projectedDetail">From your scenario</div>
+      </div>
+      <div class="qs">
+        <div class="lbl">Likely finish</div>
+        <div class="val" id="likelyFinish">—</div>
+        <div class="delta" id="likelyDetail">Run a simulation</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="panels">
+    <div class="workbench">
+      <div class="section-label">
+        <span>Call each match — your prediction shapes the odds</span>
+        <span class="hint" id="pickedCount">0 of 5 predicted</span>
+      </div>
+      <div class="fixtures" id="fixtures"></div>
+      <div class="workbench-footer">
+        <button class="primary" id="runBtn" disabled>Reset predictions</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Probability of finishing position</h3>
+      <div id="probContainer">
+        <div class="prob-row">
+          <div>
+            <div class="prob-pos">20th</div>
+            <div class="prob-desc">Bottom · Last</div>
+          </div>
+          <div class="prob-bar"><div class="prob-bar-fill p20" id="bar-20" style="width:0%"></div></div>
+          <div class="prob-pct" id="pct-20">—</div>
+        </div>
+        <div class="prob-row">
+          <div>
+            <div class="prob-pos">19th</div>
+            <div class="prob-desc">2nd from bottom</div>
+          </div>
+          <div class="prob-bar"><div class="prob-bar-fill p19" id="bar-19" style="width:0%"></div></div>
+          <div class="prob-pct" id="pct-19">—</div>
+        </div>
+        <div class="prob-row">
+          <div>
+            <div class="prob-pos">18th</div>
+            <div class="prob-desc">3rd from bottom</div>
+          </div>
+          <div class="prob-bar"><div class="prob-bar-fill p18" id="bar-18" style="width:0%"></div></div>
+          <div class="prob-pct" id="pct-18">—</div>
+        </div>
+        <div class="prob-row">
+          <div>
+            <div class="prob-pos">17th</div>
+            <div class="prob-desc">4th from bottom · Safe</div>
+          </div>
+          <div class="prob-bar"><div class="prob-bar-fill p17" id="bar-17" style="width:0%"></div></div>
+          <div class="prob-pct" id="pct-17">—</div>
+        </div>
+        <div class="prob-row">
+          <div>
+            <div class="prob-pos">≤16th</div>
+            <div class="prob-desc">Comfortably safe</div>
+          </div>
+          <div class="prob-bar"><div class="prob-bar-fill safe" id="bar-safe" style="width:0%"></div></div>
+          <div class="prob-pct" id="pct-safe">—</div>
+        </div>
+      </div>
+
+      <div class="sim-status">
+        <div>
+          <div class="runs"><span id="runCount">0</span> simulations</div>
+          <div class="lbl">Out of 10,000 Monte Carlo runs</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="lbl">P(relegated)</div>
+          <div class="relg-num" style="color: var(--red);" id="relegProb">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>The relegation race · Bottom 6</h3>
+    <div class="rivals" id="rivals"></div>
+  </div>
+
+  <div class="footer">
+    <strong style="color:var(--text);">Method.</strong> For each Spurs fixture, win/draw/loss probabilities are computed from each team's season points-per-game with a home advantage of +12% on win share. Locking an outcome forces that result in every simulated season. Other clubs in the relegation race draw their remaining results from a multinomial calibrated to season PPG (draws peak around PPG ≈ 1). Final positions are sorted by points; ties broken randomly as a proxy for goal difference.
+    <br><br>
+    Source data — <a href="https://www.skysports.com/premier-league-table" style="color:var(--text);">Sky Sports</a>, <a href="https://www.espn.co.uk/football/team/fixtures/_/id/367/tottenham-hotspur" style="color:var(--text);">ESPN UK</a>. April 19, 2026.
+  </div>
+
+</div>
+
+<script>
+// =====================
+// DATA
+// =====================
+const TEAMS = [
+  { id: 'ars', name: 'Arsenal',           played: 33, pts: 70 },
+  { id: 'mci', name: 'Manchester City',   played: 32, pts: 67 },
+  { id: 'mun', name: 'Manchester United', played: 33, pts: 58 },
+  { id: 'avl', name: 'Aston Villa',       played: 33, pts: 58 },
+  { id: 'liv', name: 'Liverpool',         played: 33, pts: 55 },
+  { id: 'che', name: 'Chelsea',           played: 33, pts: 48 },
+  { id: 'bre', name: 'Brentford',         played: 33, pts: 48 },
+  { id: 'bou', name: 'Bournemouth',       played: 33, pts: 48 },
+  { id: 'bha', name: 'Brighton',          played: 33, pts: 47 },
+  { id: 'eve', name: 'Everton',           played: 33, pts: 47 },
+  { id: 'sun', name: 'Sunderland',        played: 33, pts: 46 },
+  { id: 'ful', name: 'Fulham',            played: 33, pts: 45 },
+  { id: 'cry', name: 'Crystal Palace',    played: 31, pts: 42 },
+  { id: 'new', name: 'Newcastle',         played: 33, pts: 42 },
+  { id: 'lee', name: 'Leeds United',      played: 33, pts: 39 },
+  { id: 'not', name: 'Nottingham Forest', played: 33, pts: 36 },
+  { id: 'whu', name: 'West Ham United',   played: 32, pts: 32 },
+  { id: 'tot', name: 'Tottenham',         played: 33, pts: 31, isSpurs: true },
+  { id: 'bur', name: 'Burnley',           played: 33, pts: 20 },
+  { id: 'wol', name: 'Wolves',            played: 33, pts: 17 },
+];
+
+// Spurs' actual remaining 5 fixtures
+const SPURS_FIXTURES = [
+  { id: 0, opp: 'wol', oppName: 'Wolves',     venue: 'A', date: 'Sat 25 Apr', short: 'WOL' },
+  { id: 1, opp: 'avl', oppName: 'Aston Villa', venue: 'A', date: 'Sun 3 May',  short: 'AVL' },
+  { id: 2, opp: 'lee', oppName: 'Leeds',      venue: 'H', date: 'Mon 11 May', short: 'LEE' },
+  { id: 3, opp: 'che', oppName: 'Chelsea',    venue: 'A', date: 'Sun 17 May', short: 'CHE' },
+  { id: 4, opp: 'eve', oppName: 'Everton',    venue: 'H', date: 'Sun 24 May', short: 'EVE' },
+];
+
+const teamMap = Object.fromEntries(TEAMS.map(t => [t.id, t]));
+const spursPpg = teamMap['tot'].pts / teamMap['tot'].played;
+
+// State: locked outcomes for each fixture. null = probabilistic.
+const lockedOutcomes = [null, null, null, null, null];
+
+// =====================
+// PROBABILITY MODEL
+// =====================
+// Per-fixture W/D/L probabilities for Spurs.
+// Logistic over (Spurs PPG - opp PPG), with home advantage.
+function fixtureProbs(fx) {
+  const opp = teamMap[fx.opp];
+  const oppPpg = opp.pts / opp.played;
+  const diff = spursPpg - oppPpg;
+  // base win share without home/away (logistic)
+  const baseWin = 1 / (1 + Math.exp(-1.5 * diff));
+  // Home advantage adjustment
+  const homeBoost = fx.venue === 'H' ? 0.12 : -0.10;
+  let pw = Math.max(0.05, Math.min(0.85, baseWin + homeBoost));
+  // Draw rate higher when teams are evenly matched
+  const closeness = 1 - Math.min(1, Math.abs(diff));
+  let pd = 0.18 + 0.18 * closeness;
+  // Renormalise
+  let pl = 1 - pw - pd;
+  if (pl < 0.05) {
+    pl = 0.05;
+    const remaining = 1 - pl - pd;
+    pw = remaining;
+  }
+  const s = pw + pd + pl;
+  return { pw: pw / s, pd: pd / s, pl: pl / s };
+}
+
+// Generic team's per-game distribution from PPG (for non-Spurs)
+function pointsDistFromPPG(ppg) {
+  ppg = Math.max(0, Math.min(3, ppg));
+  const drawProb = Math.max(0.05, 0.45 - 0.4 * Math.pow(ppg - 1, 2));
+  let pw = (ppg - drawProb) / 3;
+  let pl = 1 - drawProb - pw;
+  if (pw < 0) { pw = 0; pl = 1 - drawProb; }
+  if (pl < 0) { pl = 0; pw = 1 - drawProb; }
+  const s = pw + pl + drawProb;
+  return { pl: pl / s, pd: drawProb / s, pw: pw / s };
+}
+function sampleGenericGame(dist) {
+  const r = Math.random();
+  if (r < dist.pl) return 0;
+  if (r < dist.pl + dist.pd) return 1;
+  return 3;
+}
+function sampleSpursFixture(probs, locked) {
+  if (locked === 'W') return 3;
+  if (locked === 'D') return 1;
+  if (locked === 'L') return 0;
+  const r = Math.random();
+  if (r < probs.pw) return 3;
+  if (r < probs.pw + probs.pd) return 1;
+  return 0;
+}
+
+// =====================
+// SIMULATION
+// =====================
+function simulateOnce() {
+  const results = TEAMS.map(t => {
+    if (t.isSpurs) {
+      let added = 0;
+      for (let i = 0; i < SPURS_FIXTURES.length; i++) {
+        const probs = fixtureProbs(SPURS_FIXTURES[i]);
+        added += sampleSpursFixture(probs, lockedOutcomes[i]);
+      }
+      return { id: t.id, total: t.pts + added, isSpurs: true, jitter: Math.random() };
+    }
+    const remaining = 38 - t.played;
+    const ppg = t.pts / t.played;
+    const dist = pointsDistFromPPG(ppg);
+    let added = 0;
+    for (let g = 0; g < remaining; g++) added += sampleGenericGame(dist);
+    return { id: t.id, total: t.pts + added, isSpurs: false, jitter: Math.random() };
+  });
+  results.sort((a, b) => (b.total - a.total) || (b.jitter - a.jitter));
+  const spurs = results.find(r => r.isSpurs);
+  return { pos: results.findIndex(r => r.isSpurs) + 1, pts: spurs.total };
+}
+
+async function runSimulations(N = 10000) {
+  const btn = document.getElementById('runBtn');
+  const wasDisabled = btn.disabled;
+  btn.disabled = true;
+  btn.dataset.busy = '1';
+
+  const counts = new Array(21).fill(0);
+  const ptsHistory = [];
+  let runs = 0;
+  const batch = 800;
+
+  function step() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        for (let i = 0; i < batch && runs < N; i++) {
+          const r = simulateOnce();
+          counts[r.pos]++;
+          ptsHistory.push(r.pts);
+          runs++;
+        }
+        document.getElementById('runCount').textContent = runs.toLocaleString();
+        renderProbabilities(counts, runs, ptsHistory);
+        resolve();
+      });
+    });
+  }
+
+  while (runs < N) await step();
+
+  delete btn.dataset.busy;
+  updateCTA();
+}
+
+function renderProbabilities(counts, total, ptsHistory) {
+  if (!total) return;
+  const p20 = counts[20] / total;
+  const p19 = counts[19] / total;
+  const p18 = counts[18] / total;
+  const p17 = counts[17] / total;
+  const psafe = 1 - p20 - p19 - p18 - p17;
+  const max = Math.max(p20, p19, p18, p17, psafe, 0.01);
+  function pct(v) { return (v * 100).toFixed(1) + '%'; }
+  function setBar(id, val) {
+    document.getElementById('bar-' + id).style.width = ((val / max) * 100) + '%';
+    document.getElementById('pct-' + id).textContent = pct(val);
+  }
+  setBar('20', p20); setBar('19', p19); setBar('18', p18);
+  setBar('17', p17); setBar('safe', psafe);
+  document.getElementById('relegProb').textContent = pct(p20 + p19 + p18);
+
+  // Likely finish
+  const probs = [p20, p19, p18, p17, psafe];
+  const labels = ['20th', '19th', '18th', '17th', '≤16th'];
+  let maxIdx = 0;
+  for (let i = 1; i < probs.length; i++) if (probs[i] > probs[maxIdx]) maxIdx = i;
+  document.getElementById('likelyFinish').textContent = labels[maxIdx];
+  document.getElementById('likelyDetail').textContent =
+    `Modal outcome (${(probs[maxIdx]*100).toFixed(0)}% of runs)`;
+
+  // Avg projected pts
+  if (ptsHistory.length) {
+    const avg = ptsHistory.reduce((a, b) => a + b, 0) / ptsHistory.length;
+    document.getElementById('projectedPts').textContent = avg.toFixed(1);
+  }
+}
+
+// =====================
+// FIXTURES UI
+// =====================
+function renderFixtures() {
+  const container = document.getElementById('fixtures');
+  container.innerHTML = '';
+  const lockedCount = lockedOutcomes.filter(o => o !== null).length;
+  document.getElementById('pickedCount').textContent = `${lockedCount} of 5 predicted`;
+  SPURS_FIXTURES.forEach((fx, idx) => {
+    const opp = teamMap[fx.opp];
+    const oppPpg = (opp.pts / opp.played).toFixed(2);
+    const probs = fixtureProbs(fx);
+    const card = document.createElement('div');
+    card.className = 'fx' + (lockedOutcomes[idx] ? ' locked' : '');
+    card.innerHTML = `
+      <div class="fx-left">
+        <div class="fx-date">${fx.date.replace('Sat ','').replace('Sun ','').replace('Mon ','')}</div>
+        <div class="fx-venue ${fx.venue === 'H' ? 'home' : 'away'}">${fx.venue === 'H' ? 'HOME' : 'AWAY'}</div>
+      </div>
+      <div class="fx-mid">
+        <div class="fx-opp">${fx.oppName}</div>
+        <div class="fx-meta">${opp.pts} pts · PPG ${oppPpg}</div>
+      </div>
+      <div class="fx-right">
+        <div class="wdl-row" data-fx="${idx}">
+          <button class="wdl-btn W ${lockedOutcomes[idx]==='W'?'active':''}" data-r="W">WIN</button>
+          <button class="wdl-btn D ${lockedOutcomes[idx]==='D'?'active':''}" data-r="D">DRAW</button>
+          <button class="wdl-btn L ${lockedOutcomes[idx]==='L'?'active':''}" data-r="L">LOSS</button>
+        </div>
+        <div class="wdl-prob">
+          <span style="color:${lockedOutcomes[idx]==='W'?'var(--win)':''}">${(probs.pw*100).toFixed(0)}%</span>
+          <span style="color:${lockedOutcomes[idx]==='D'?'var(--draw)':''}">${(probs.pd*100).toFixed(0)}%</span>
+          <span style="color:${lockedOutcomes[idx]==='L'?'var(--loss)':''}">${(probs.pl*100).toFixed(0)}%</span>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  // Wire up clicks
+  document.querySelectorAll('.wdl-row').forEach(row => {
+    const fxIdx = parseInt(row.dataset.fx);
+    row.querySelectorAll('.wdl-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const r = btn.dataset.r;
+        if (lockedOutcomes[fxIdx] === r) lockedOutcomes[fxIdx] = null;
+        else lockedOutcomes[fxIdx] = r;
+        renderFixtures();
+        updateScenario();
+        updateCTA();
+        if (allLocked()) runSimulations(10000);
+      });
+    });
+  });
+}
+
+function allLocked() {
+  return lockedOutcomes.every(o => o !== null);
+}
+
+function updateCTA() {
+  const btn = document.getElementById('runBtn');
+  btn.textContent = 'Reset predictions';
+  const hasAny = lockedOutcomes.some(o => o !== null);
+  btn.disabled = !hasAny;
+}
+
+function updateScenario() {
+  // Compute deterministic component from locked outcomes
+  let lockedPts = 0;
+  let lockedCount = 0;
+  let probabilisticExpected = 0;
+  SPURS_FIXTURES.forEach((fx, idx) => {
+    const probs = fixtureProbs(fx);
+    if (lockedOutcomes[idx] === 'W') { lockedPts += 3; lockedCount++; }
+    else if (lockedOutcomes[idx] === 'D') { lockedPts += 1; lockedCount++; }
+    else if (lockedOutcomes[idx] === 'L') { lockedCount++; }
+    else { probabilisticExpected += probs.pw * 3 + probs.pd * 1; }
+  });
+  const expectedTotal = teamMap['tot'].pts + lockedPts + probabilisticExpected;
+  document.getElementById('projectedPts').textContent = expectedTotal.toFixed(1);
+  document.getElementById('projectedDetail').textContent =
+    lockedCount > 0
+      ? `${lockedCount} game${lockedCount>1?'s':''} locked + ${5-lockedCount} sim'd`
+      : 'Pure model expectation';
+}
+
+// =====================
+// RIVALS PANEL
+// =====================
+function renderRivals() {
+  const sorted = [...TEAMS].sort((a, b) => b.pts - a.pts);
+  const bottom = sorted.slice(14); // last 6
+  const container = document.getElementById('rivals');
+  container.innerHTML = '';
+  const maxPpg = 1.5;
+  bottom.forEach((t, i) => {
+    const pos = 15 + i;
+    const remaining = 38 - t.played;
+    const ppg = t.pts / t.played;
+    const projected = (t.pts + ppg * remaining).toFixed(1);
+    const row = document.createElement('div');
+    row.className = 'rival' + (t.isSpurs ? ' spurs' : '');
+    row.innerHTML = `
+      <div class="rpos">${pos}</div>
+      <div>
+        <div class="rname">${t.name}${t.isSpurs ? ' ⭐' : ''}</div>
+      </div>
+      <div class="rpts">${t.pts} pts · PPG ${ppg.toFixed(2)}</div>
+      <div class="rproj">~${projected}</div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+// =====================
+// CTA HANDLERS
+// =====================
+
+document.getElementById('runBtn').addEventListener('click', () => {
+  if (!lockedOutcomes.some(o => o !== null)) return;
+  for (let i = 0; i < 5; i++) lockedOutcomes[i] = null;
+  renderFixtures();
+  updateScenario();
+  updateCTA();
+  runSimulations(10000);
+});
+document.getElementById('resetBtn')?.addEventListener('click', () => {
+  for (let i = 0; i < 5; i++) lockedOutcomes[i] = null;
+  renderFixtures();
+  updateScenario();
+  updateCTA();
+  ['20','19','18','17','safe'].forEach(id => {
+    document.getElementById('bar-' + id).style.width = '0%';
+    document.getElementById('pct-' + id).textContent = '—';
+  });
+  document.getElementById('runCount').textContent = '0';
+  document.getElementById('relegProb').textContent = '—';
+  document.getElementById('likelyFinish').textContent = '—';
+  document.getElementById('likelyDetail').textContent = 'Run a simulation';
+});
+
+// =====================
+// INIT
+// =====================
+renderFixtures();
+renderRivals();
+updateScenario();
+updateCTA();
+runSimulations(10000);
+</script>
+</body>
+</html>
