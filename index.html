@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Spurs · Final Five — Relegation Simulator 2025/26</title>
+<title>Spurs · Final Three — Relegation Simulator 2025/26</title>
 <style>
   :root {
     --navy: #132257;
@@ -520,31 +520,31 @@
         </svg>
       </div>
       <div class="title-wrap">
-        <h1>SPURS · THE FINAL FIVE</h1>
+        <h1>SPURS · THE FINAL THREE</h1>
         <div class="sub">2025/26 Relegation Simulator</div>
       </div>
     </div>
     <div class="meta">
-      <div><strong>Matchweek 33</strong> · 5 games to go</div>
-      <div>Updated April 19, 2026</div>
+      <div><strong>Matchweek 35</strong> · 3 games to go</div>
+      <div>Updated May 3, 2026</div>
     </div>
   </header>
 
   <section class="hero">
     <div>
-      <h2>Five matches stand between<br/><span class="accent">Spurs</span> and the drop.</h2>
-      <p>Tottenham sit 18th on 31 points. Below: their actual run-in. Pick outcomes for any fixture and watch the relegation maths recalculate in real time, or run 10,000 Monte Carlo simulations using each opponent's form and home advantage.</p>
+      <h2>Three matches stand between<br/><span class="accent">Spurs</span> and survival.</h2>
+      <p>Back-to-back wins at Wolves and Aston Villa (2–1, today) lift Tottenham to 16th on 37 points — out of the drop zone but not yet mathematically safe. Below: the run-in. Pick outcomes for any fixture and watch the relegation maths recalculate in real time, or run 10,000 Monte Carlo simulations using each opponent's form and home advantage.</p>
     </div>
     <div class="quick-stats">
       <div class="qs">
         <div class="lbl">Current Pos</div>
-        <div class="val danger">18<span style="font-size:14px; color:var(--muted);">th</span></div>
-        <div class="delta">In the relegation zone</div>
+        <div class="val">16<span style="font-size:14px; color:var(--muted);">th</span></div>
+        <div class="delta">Out of the drop zone</div>
       </div>
       <div class="qs">
         <div class="lbl">Current Pts</div>
-        <div class="val">31</div>
-        <div class="delta">PPG 0.94 over 33 games</div>
+        <div class="val">37</div>
+        <div class="delta">PPG 1.06 over 35 games · W2 last 2</div>
       </div>
       <div class="qs">
         <div class="lbl">Projected Pts</div>
@@ -563,7 +563,7 @@
     <div class="workbench">
       <div class="section-label">
         <span>Call each match — your prediction shapes the odds</span>
-        <span class="hint" id="pickedCount">0 of 5 predicted</span>
+        <span class="hint" id="pickedCount">0 of 3 predicted</span>
       </div>
       <div class="fixtures" id="fixtures"></div>
       <div class="workbench-footer">
@@ -637,7 +637,7 @@
   <div class="footer">
     <strong style="color:var(--text);">Method.</strong> For each Spurs fixture, win/draw/loss probabilities are computed from each team's season points-per-game with a home advantage of +12% on win share. Locking an outcome forces that result in every simulated season. Other clubs in the relegation race draw their remaining results from a multinomial calibrated to season PPG (draws peak around PPG ≈ 1). Final positions are sorted by points; ties broken randomly as a proxy for goal difference.
     <br><br>
-    Source data — <a href="https://www.skysports.com/premier-league-table" style="color:var(--text);">Sky Sports</a>, <a href="https://www.espn.co.uk/football/team/fixtures/_/id/367/tottenham-hotspur" style="color:var(--text);">ESPN UK</a>. April 19, 2026.
+    Source data — <a href="https://www.skysports.com/premier-league-table" style="color:var(--text);">Sky Sports</a>, <a href="https://www.espn.co.uk/football/team/fixtures/_/id/367/tottenham-hotspur" style="color:var(--text);">ESPN UK</a>. Updated May 3, 2026 after Spurs 2–1 win at Aston Villa.
   </div>
 
 </div>
@@ -650,7 +650,7 @@ const TEAMS = [
   { id: 'ars', name: 'Arsenal',           played: 33, pts: 70 },
   { id: 'mci', name: 'Manchester City',   played: 32, pts: 67 },
   { id: 'mun', name: 'Manchester United', played: 33, pts: 58 },
-  { id: 'avl', name: 'Aston Villa',       played: 33, pts: 58 },
+  { id: 'avl', name: 'Aston Villa',       played: 34, pts: 58 },
   { id: 'liv', name: 'Liverpool',         played: 33, pts: 55 },
   { id: 'che', name: 'Chelsea',           played: 33, pts: 48 },
   { id: 'bre', name: 'Brentford',         played: 33, pts: 48 },
@@ -664,25 +664,23 @@ const TEAMS = [
   { id: 'lee', name: 'Leeds United',      played: 33, pts: 39 },
   { id: 'not', name: 'Nottingham Forest', played: 33, pts: 36 },
   { id: 'whu', name: 'West Ham United',   played: 32, pts: 32 },
-  { id: 'tot', name: 'Tottenham',         played: 33, pts: 31, isSpurs: true },
+  { id: 'tot', name: 'Tottenham',         played: 35, pts: 37, isSpurs: true },
   { id: 'bur', name: 'Burnley',           played: 33, pts: 20 },
-  { id: 'wol', name: 'Wolves',            played: 33, pts: 17 },
+  { id: 'wol', name: 'Wolves',            played: 34, pts: 17 },
 ];
 
-// Spurs' actual remaining 5 fixtures
+// Spurs' actual remaining 3 fixtures
 const SPURS_FIXTURES = [
-  { id: 0, opp: 'wol', oppName: 'Wolves',     venue: 'A', date: 'Sat 25 Apr', short: 'WOL' },
-  { id: 1, opp: 'avl', oppName: 'Aston Villa', venue: 'A', date: 'Sun 3 May',  short: 'AVL' },
-  { id: 2, opp: 'lee', oppName: 'Leeds',      venue: 'H', date: 'Mon 11 May', short: 'LEE' },
-  { id: 3, opp: 'che', oppName: 'Chelsea',    venue: 'A', date: 'Sun 17 May', short: 'CHE' },
-  { id: 4, opp: 'eve', oppName: 'Everton',    venue: 'H', date: 'Sun 24 May', short: 'EVE' },
+  { id: 0, opp: 'lee', oppName: 'Leeds',   venue: 'H', date: 'Mon 11 May', short: 'LEE' },
+  { id: 1, opp: 'che', oppName: 'Chelsea', venue: 'A', date: 'Sun 17 May', short: 'CHE' },
+  { id: 2, opp: 'eve', oppName: 'Everton', venue: 'H', date: 'Sun 24 May', short: 'EVE' },
 ];
 
 const teamMap = Object.fromEntries(TEAMS.map(t => [t.id, t]));
 const spursPpg = teamMap['tot'].pts / teamMap['tot'].played;
 
 // State: locked outcomes for each fixture. null = probabilistic.
-const lockedOutcomes = [null, null, null, null, null];
+const lockedOutcomes = [null, null, null];
 
 // =====================
 // PROBABILITY MODEL
@@ -837,7 +835,7 @@ function renderFixtures() {
   const container = document.getElementById('fixtures');
   container.innerHTML = '';
   const lockedCount = lockedOutcomes.filter(o => o !== null).length;
-  document.getElementById('pickedCount').textContent = `${lockedCount} of 5 predicted`;
+  document.getElementById('pickedCount').textContent = `${lockedCount} of 3 predicted`;
   SPURS_FIXTURES.forEach((fx, idx) => {
     const opp = teamMap[fx.opp];
     const oppPpg = (opp.pts / opp.played).toFixed(2);
@@ -913,7 +911,7 @@ function updateScenario() {
   document.getElementById('projectedPts').textContent = expectedTotal.toFixed(1);
   document.getElementById('projectedDetail').textContent =
     lockedCount > 0
-      ? `${lockedCount} game${lockedCount>1?'s':''} locked + ${5-lockedCount} sim'd`
+      ? `${lockedCount} game${lockedCount>1?'s':''} locked + ${3-lockedCount} sim'd`
       : 'Pure model expectation';
 }
 
@@ -951,14 +949,14 @@ function renderRivals() {
 
 document.getElementById('runBtn').addEventListener('click', () => {
   if (!lockedOutcomes.some(o => o !== null)) return;
-  for (let i = 0; i < 5; i++) lockedOutcomes[i] = null;
+  for (let i = 0; i < lockedOutcomes.length; i++) lockedOutcomes[i] = null;
   renderFixtures();
   updateScenario();
   updateCTA();
   runSimulations(10000);
 });
 document.getElementById('resetBtn')?.addEventListener('click', () => {
-  for (let i = 0; i < 5; i++) lockedOutcomes[i] = null;
+  for (let i = 0; i < lockedOutcomes.length; i++) lockedOutcomes[i] = null;
   renderFixtures();
   updateScenario();
   updateCTA();
