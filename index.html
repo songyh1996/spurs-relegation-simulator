@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Spurs · Final Three — Relegation Simulator 2025/26</title>
+<title>Spurs · Final Two — Relegation Simulator 2025/26</title>
 <style>
   :root {
     --navy: #132257;
@@ -628,20 +628,20 @@
         </svg>
       </div>
       <div class="title-wrap">
-        <h1>SPURS · THE FINAL THREE</h1>
+        <h1>SPURS · THE FINAL TWO</h1>
         <div class="sub">2025/26 Relegation Simulator</div>
       </div>
     </div>
     <div class="meta">
-      <div><strong>Matchweek 35</strong> · 3 games to go</div>
-      <div>Updated May 3, 2026</div>
+      <div><strong>Matchweek 36</strong> · 2 games to go</div>
+      <div>Updated May 11, 2026</div>
     </div>
   </header>
 
   <section class="hero">
     <div>
-      <h2>Three matches stand between<br/><span class="accent">Spurs</span> and survival.</h2>
-      <p>Back-to-back wins at Wolves (1–0, Apr 25) and Aston Villa (2–1, today) lift Tottenham to 17th on 37 points — one place and one point above West Ham, with Burnley and Wolves already down. Out of the drop zone but not yet mathematically safe. Below: the run-in. Pick outcomes for any fixture and watch the relegation maths recalculate in real time, or run 10,000 Monte Carlo simulations using each opponent's form and home advantage.</p>
+      <h2>Two matches stand between<br/><span class="accent">Spurs</span> and survival.</h2>
+      <p>Tonight's 1–1 home draw with Leeds means Tottenham sit 17th on 38 points — two clear of West Ham with two to play, and a win in either of Chelsea (A) or Everton (H) is likely enough. Burnley and Wolves are already down. Pick outcomes for either fixture and watch the relegation maths recalculate in real time, or run 10,000 Monte Carlo simulations using each opponent's form and home advantage.</p>
     </div>
     <div class="quick-stats">
       <div class="qs">
@@ -651,8 +651,8 @@
       </div>
       <div class="qs">
         <div class="lbl">Current Pts</div>
-        <div class="val">37</div>
-        <div class="delta">PPG 1.06 over 35 games · W2 last 2</div>
+        <div class="val">38</div>
+        <div class="delta">PPG 1.06 over 36 games · W2 D1 last 3</div>
       </div>
       <div class="qs">
         <div class="lbl">Projected Pts</div>
@@ -671,7 +671,7 @@
     <div class="workbench">
       <div class="section-label">
         <span>Call each match — your prediction shapes the odds</span>
-        <span class="hint" id="pickedCount">0 of 3 predicted</span>
+        <span class="hint" id="pickedCount">0 of 2 predicted</span>
       </div>
       <div class="fixtures" id="fixtures"></div>
       <div class="workbench-footer">
@@ -745,7 +745,7 @@
   <div class="footer">
     <strong style="color:var(--text);">Method.</strong> For each Spurs fixture, win/draw/loss probabilities are computed from each team's season points-per-game with a home advantage of +12% on win share. Locking an outcome forces that result in every simulated season. Other clubs in the relegation race draw their remaining results from a multinomial calibrated to season PPG (draws peak around PPG ≈ 1). Final positions are sorted by points; ties broken randomly as a proxy for goal difference.
     <br><br>
-    Source data — <a href="https://www.skysports.com/premier-league-table" style="color:var(--text);">Sky Sports</a>, <a href="https://www.premierleague.com/en/tables/premier-league/2025-26/all-matchweeks" style="color:var(--text);">Premier League</a>. Reflects matchweek 35 results through May 3, 2026 (Chelsea v Forest and Everton v City delayed to May 4 — Chelsea, Everton, Forest, Man City still on 34 played; Crystal Palace on 33). Burnley and Wolves are mathematically relegated.
+    Source data — <a href="https://www.skysports.com/premier-league-table" style="color:var(--text);">Sky Sports</a>, <a href="https://www.premierleague.com/en/tables/premier-league/2025-26/all-matchweeks" style="color:var(--text);">Premier League</a>. Reflects matchweek 36 results through May 11, 2026, including tonight's Tottenham 1–1 Leeds. Crystal Palace remain on 35 played (one catch-up game still outstanding). Burnley and Wolves are mathematically relegated.
   </div>
 
 </div>
@@ -928,40 +928,39 @@
 // DATA
 // =====================
 const TEAMS = [
-  { id: 'ars', name: 'Arsenal',           played: 35, pts: 76 },
-  { id: 'mci', name: 'Manchester City',   played: 34, pts: 70 },
-  { id: 'mun', name: 'Manchester United', played: 35, pts: 64 },
-  { id: 'avl', name: 'Aston Villa',       played: 35, pts: 58 },
-  { id: 'liv', name: 'Liverpool',         played: 35, pts: 55 },
-  { id: 'bou', name: 'Bournemouth',       played: 35, pts: 52 },
-  { id: 'bre', name: 'Brentford',         played: 35, pts: 51 },
-  { id: 'bha', name: 'Brighton',          played: 35, pts: 50 },
-  { id: 'che', name: 'Chelsea',           played: 34, pts: 48 },
-  { id: 'ful', name: 'Fulham',            played: 35, pts: 48 },
-  { id: 'eve', name: 'Everton',           played: 34, pts: 47 },
-  { id: 'sun', name: 'Sunderland',        played: 35, pts: 47 },
-  { id: 'new', name: 'Newcastle',         played: 35, pts: 45 },
-  { id: 'cry', name: 'Crystal Palace',    played: 33, pts: 43 },
-  { id: 'lee', name: 'Leeds United',      played: 35, pts: 42 },
-  { id: 'not', name: 'Nottingham Forest', played: 34, pts: 39 },
-  { id: 'tot', name: 'Tottenham',         played: 35, pts: 37, isSpurs: true },
-  { id: 'whu', name: 'West Ham United',   played: 35, pts: 36 },
-  { id: 'bur', name: 'Burnley',           played: 35, pts: 20 },
-  { id: 'wol', name: 'Wolves',            played: 35, pts: 18 },
+  { id: 'ars', name: 'Arsenal',           played: 36, pts: 79 },
+  { id: 'mci', name: 'Manchester City',   played: 36, pts: 74 },
+  { id: 'mun', name: 'Manchester United', played: 36, pts: 65 },
+  { id: 'avl', name: 'Aston Villa',       played: 36, pts: 59 },
+  { id: 'liv', name: 'Liverpool',         played: 36, pts: 59 },
+  { id: 'bou', name: 'Bournemouth',       played: 36, pts: 55 },
+  { id: 'bha', name: 'Brighton',          played: 36, pts: 53 },
+  { id: 'bre', name: 'Brentford',         played: 36, pts: 51 },
+  { id: 'che', name: 'Chelsea',           played: 36, pts: 49 },
+  { id: 'eve', name: 'Everton',           played: 36, pts: 49 },
+  { id: 'ful', name: 'Fulham',            played: 36, pts: 48 },
+  { id: 'sun', name: 'Sunderland',        played: 36, pts: 48 },
+  { id: 'new', name: 'Newcastle',         played: 36, pts: 46 },
+  { id: 'cry', name: 'Crystal Palace',    played: 35, pts: 44 },
+  { id: 'not', name: 'Nottingham Forest', played: 36, pts: 43 },
+  { id: 'lee', name: 'Leeds United',      played: 36, pts: 43 },
+  { id: 'tot', name: 'Tottenham',         played: 36, pts: 38, isSpurs: true },
+  { id: 'whu', name: 'West Ham United',   played: 36, pts: 36 },
+  { id: 'bur', name: 'Burnley',           played: 36, pts: 21 },
+  { id: 'wol', name: 'Wolves',            played: 36, pts: 18 },
 ];
 
-// Spurs' actual remaining 3 fixtures
+// Spurs' actual remaining 2 fixtures
 const SPURS_FIXTURES = [
-  { id: 0, opp: 'lee', oppName: 'Leeds',   venue: 'H', date: 'Mon 11 May', short: 'LEE' },
-  { id: 1, opp: 'che', oppName: 'Chelsea', venue: 'A', date: 'Sun 17 May', short: 'CHE' },
-  { id: 2, opp: 'eve', oppName: 'Everton', venue: 'H', date: 'Sun 24 May', short: 'EVE' },
+  { id: 0, opp: 'che', oppName: 'Chelsea', venue: 'A', date: 'Sun 17 May', short: 'CHE' },
+  { id: 1, opp: 'eve', oppName: 'Everton', venue: 'H', date: 'Sun 24 May', short: 'EVE' },
 ];
 
 const teamMap = Object.fromEntries(TEAMS.map(t => [t.id, t]));
 const spursPpg = teamMap['tot'].pts / teamMap['tot'].played;
 
 // State: locked outcomes for each fixture. null = probabilistic.
-const lockedOutcomes = [null, null, null];
+const lockedOutcomes = [null, null];
 
 // =====================
 // PROBABILITY MODEL
@@ -1116,7 +1115,7 @@ function renderFixtures() {
   const container = document.getElementById('fixtures');
   container.innerHTML = '';
   const lockedCount = lockedOutcomes.filter(o => o !== null).length;
-  document.getElementById('pickedCount').textContent = `${lockedCount} of 3 predicted`;
+  document.getElementById('pickedCount').textContent = `${lockedCount} of 2 predicted`;
   SPURS_FIXTURES.forEach((fx, idx) => {
     const opp = teamMap[fx.opp];
     const oppPpg = (opp.pts / opp.played).toFixed(2);
@@ -1192,7 +1191,7 @@ function updateScenario() {
   document.getElementById('projectedPts').textContent = expectedTotal.toFixed(1);
   document.getElementById('projectedDetail').textContent =
     lockedCount > 0
-      ? `${lockedCount} game${lockedCount>1?'s':''} locked + ${3-lockedCount} sim'd`
+      ? `${lockedCount} game${lockedCount>1?'s':''} locked + ${2-lockedCount} sim'd`
       : 'Pure model expectation';
 }
 
